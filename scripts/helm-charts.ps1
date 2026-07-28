@@ -101,6 +101,7 @@ function Invoke-Test {
             throw "values.schema.json accepted invalid historyDays for $($chart.Name)."
         }
         Write-Host "test: schema rejected invalid values for $($chart.Name)."
+        $global:LASTEXITCODE = 0
     }
     Write-Host "test: static chart tests passed (Helm hooks run after installation)."
 }

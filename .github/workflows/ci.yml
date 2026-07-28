@@ -28,7 +28,7 @@ jobs:
           config_file: .yamllint.yml
 
       - name: Lint Markdown
-        uses: DavidAnson/markdownlint-cli2-action@v20
+        uses: DavidAnson/markdownlint-cli2-action@v24
         with:
           globs: |
             **/*.md

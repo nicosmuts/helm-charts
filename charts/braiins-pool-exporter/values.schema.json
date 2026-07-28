@@ -69,6 +69,11 @@
     },
     "commonLabels": {
       "type": "object",
+      "propertyNames": {
+        "not": {
+          "enum": ["app.kubernetes.io/name", "app.kubernetes.io/instance"]
+        }
+      },
       "additionalProperties": {
         "type": "string"
       }
@@ -109,6 +114,11 @@
     },
     "podLabels": {
       "type": "object",
+      "propertyNames": {
+        "not": {
+          "enum": ["app.kubernetes.io/name", "app.kubernetes.io/instance"]
+        }
+      },
       "additionalProperties": {
         "type": "string"
       }
@@ -227,6 +237,11 @@
         },
         "labels": {
           "type": "object",
+          "propertyNames": {
+            "not": {
+              "enum": ["app.kubernetes.io/name", "app.kubernetes.io/instance"]
+            }
+          },
           "additionalProperties": {
             "type": "string"
           }

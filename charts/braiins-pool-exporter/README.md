@@ -188,14 +188,14 @@ change independently.
 | `imagePullSecrets` | list | `[]` | Pod image pull Secret references |
 | `nameOverride` | string | `""` | Partial resource-name override |
 | `fullnameOverride` | string | `""` | Full resource-name override |
-| `commonLabels` | object | `{}` | Labels added to chart resources |
+| `commonLabels` | object | `{}` | Labels added to chart resources; generated selector labels are reserved |
 | `serviceAccount.create` | boolean | `true` | Create a dedicated ServiceAccount |
 | `serviceAccount.automountServiceAccountToken` | boolean | `false` | Mount the Kubernetes API token |
 | `serviceAccount.annotations` | object | `{}` | ServiceAccount annotations |
 | `serviceAccount.labels` | object | `{}` | Additional ServiceAccount labels |
 | `serviceAccount.name` | string | `""` | Existing or generated ServiceAccount name |
 | `podAnnotations` | object | `{}` | Pod annotations |
-| `podLabels` | object | `{}` | Additional non-selector pod labels |
+| `podLabels` | object | `{}` | Additional non-selector pod labels; generated selector labels are reserved |
 | `podSecurityContext` | object | secure defaults | Pod-level security context |
 | `containerSecurityContext` | object | secure defaults | Exporter container security context |
 | `config.coin` | string | `btc` | Braiins Pool coin; only `btc` is supported |
@@ -216,7 +216,7 @@ change independently.
 | `service.type` | string | `ClusterIP` | Kubernetes Service type |
 | `service.port` | integer | `9108` | Service port |
 | `service.annotations` | object | `{}` | Service annotations |
-| `service.labels` | object | `{}` | Additional Service labels |
+| `service.labels` | object | `{}` | Additional Service labels; generated selector labels are reserved |
 | `resources` | object | requests and limits | CPU and memory resources |
 | `livenessProbe` | object | enabled | `/-/healthy` probe configuration |
 | `readinessProbe` | object | enabled | `/-/ready` probe configuration |

@@ -1,0 +1,34 @@
+# Helm build artifacts
+dist/
+build/
+*.tgz
+index.yaml
+
+# Local and private configuration
+.env
+.env.*
+!.env.example
+*secret*.yaml
+*secret*.yml
+*.kubeconfig
+kubeconfig*
+values.local.yaml
+values.private.yaml
+values.secret.yaml
+charts/*/ci/*-private-values.yaml
+
+# Helm and registry credentials
+registry.json
+repositories.yaml
+
+# Editors, operating systems, and temporary files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak

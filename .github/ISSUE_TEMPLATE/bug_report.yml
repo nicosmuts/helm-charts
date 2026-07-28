@@ -1,0 +1,54 @@
+---
+name: Bug report
+description: Report a reproducible problem with a released chart
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include credentials or private configuration. Security issues
+        must be reported through the private security advisory link.
+  - type: input
+    id: chart
+    attributes:
+      label: Chart and version
+      placeholder: example-chart 1.2.3
+    validations:
+      required: true
+  - type: input
+    id: helm
+    attributes:
+      label: Helm and Kubernetes versions
+      placeholder: Helm 3.x, Kubernetes 1.x
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Provide minimal, sanitized values and commands.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed secrets and private environment details.
+          required: true
+        - label: I searched existing issues.
+          required: true

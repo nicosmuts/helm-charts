@@ -1,0 +1,79 @@
+---
+name: Chart request
+description: Propose a reusable public Helm chart
+title: "[Chart]: "
+labels:
+  - enhancement
+  - chart-request
+body:
+  - type: input
+    id: application
+    attributes:
+      label: Upstream application
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: Upstream repository
+      placeholder: https://github.com/owner/project
+    validations:
+      required: true
+  - type: input
+    id: image
+    attributes:
+      label: Container image
+      placeholder: registry.example/owner/image
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: State the SPDX identifier and link to the license.
+    validations:
+      required: true
+  - type: textarea
+    id: configuration
+    attributes:
+      label: Configuration interface
+      description: Describe flags, files, environment variables, and secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: ports
+    attributes:
+      label: Ports and protocols
+    validations:
+      required: true
+  - type: textarea
+    id: persistence
+    attributes:
+      label: Persistence
+      description: Describe required paths, access modes, and lifecycle.
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics and dashboards
+      description: Describe Prometheus endpoints and maintained dashboards.
+  - type: textarea
+    id: security
+    attributes:
+      label: Security requirements
+      description: Describe privileges, identities, capabilities, and secrets.
+    validations:
+      required: true
+  - type: input
+    id: architectures
+    attributes:
+      label: Supported architectures
+      placeholder: amd64, arm64
+    validations:
+      required: true
+  - type: textarea
+    id: maintenance
+    attributes:
+      label: Maintenance expectations
+      description: Who will test upgrades and help maintain this chart?
+    validations:
+      required: true

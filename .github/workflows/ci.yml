@@ -1,0 +1,57 @@
+---
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.18.6
+
+      - name: Lint YAML
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .yamllint.yml
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: |
+            **/*.md
+            #node_modules
+
+      - name: Validate repository and charts
+        shell: pwsh
+        run: ./scripts/helm-charts.ps1 verify
+
+      - name: Reject generated and sensitive artifacts
+        shell: pwsh
+        run: |
+          $tracked = @(git ls-files)
+          $bad = @($tracked | Where-Object {
+            $_ -match '\.tgz$' -or
+            $_ -match '(^|/)index\.yaml$' -or
+            $_ -match '(^|/)(kubeconfig|registry\.json|repositories\.yaml)$' -or
+            $_ -match '(^|/)\.env(\.|$)'
+          })
+          if ($bad.Count -gt 0) {
+            throw "Forbidden tracked files: $($bad -join ', ')"
+          }
+
+      - name: Package charts
+        shell: pwsh
+        run: ./scripts/helm-charts.ps1 package

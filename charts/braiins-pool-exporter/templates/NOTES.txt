@@ -1,0 +1,17 @@
+1. Check the exporter health endpoint:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward \
+    service/{{ include "braiins-pool-exporter.fullname" . }} 9108:{{ .Values.service.port }}
+
+  curl http://127.0.0.1:9108/-/healthy
+
+2. Run the Helm connection test:
+
+  helm test {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+
+{{- if not .Values.existingSecret.name }}
+
+The exporter is running without a Braiins Pool token. It exposes self-metrics
+but does not poll authenticated Braiins Pool endpoints. Configure
+existingSecret.name and existingSecret.key to enable API-derived metrics.
+{{- end }}

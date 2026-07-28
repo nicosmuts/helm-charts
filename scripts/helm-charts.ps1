@@ -18,6 +18,15 @@ function Get-Charts {
         Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName "Chart.yaml") })
 }
 
+function Get-CIValues([System.IO.DirectoryInfo]$Chart) {
+    $ciRoot = Join-Path $Chart.FullName "ci"
+    if (-not (Test-Path -LiteralPath $ciRoot)) {
+        return @()
+    }
+    return @(Get-ChildItem -LiteralPath $ciRoot -File -Filter "*-values.yaml" |
+        Sort-Object Name)
+}
+
 function Assert-Command([string]$Name) {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
         throw "Required command '$Name' was not found in PATH."
@@ -34,6 +43,12 @@ function Invoke-Lint {
     foreach ($chart in $charts) {
         & helm lint --strict $chart.FullName
         if ($LASTEXITCODE -ne 0) { throw "helm lint failed for $($chart.Name)." }
+        foreach ($values in @(Get-CIValues $chart)) {
+            & helm lint --strict $chart.FullName --values $values.FullName
+            if ($LASTEXITCODE -ne 0) {
+                throw "helm lint failed for $($chart.Name) with $($values.Name)."
+            }
+        }
     }
 }
 
@@ -45,12 +60,23 @@ function Invoke-Template {
     }
     Assert-Command "helm"
     foreach ($chart in $charts) {
-        $values = Join-Path $chart.FullName "ci/default-values.yaml"
-        $arguments = @("template", $chart.Name, $chart.FullName)
-        if (Test-Path -LiteralPath $values) { $arguments += @("--values", $values) }
-        & helm @arguments *> $null
-        if ($LASTEXITCODE -ne 0) { throw "helm template failed for $($chart.Name)." }
-        Write-Host "template: rendered $($chart.Name)."
+        $ciValues = @(Get-CIValues $chart)
+        if ($ciValues.Count -eq 0) {
+            $ciValues = @($null)
+        }
+        foreach ($values in $ciValues) {
+            $arguments = @("template", $chart.Name, $chart.FullName)
+            $label = "defaults"
+            if ($null -ne $values) {
+                $arguments += @("--values", $values.FullName)
+                $label = $values.Name
+            }
+            & helm @arguments *> $null
+            if ($LASTEXITCODE -ne 0) {
+                throw "helm template failed for $($chart.Name) with $label."
+            }
+            Write-Host "template: rendered $($chart.Name) with $label."
+        }
     }
 }
 
@@ -60,8 +86,23 @@ function Invoke-Test {
         Write-Host "test: no charts found; nothing to do."
         return
     }
-    Invoke-Template
-    Write-Host "test: static chart tests passed (cluster tests run after installation)."
+    Assert-Command "helm"
+    foreach ($chart in $charts) {
+        $previousErrorAction = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = "Continue"
+            & helm template "$($chart.Name)-invalid" $chart.FullName `
+                --set "config.historyDays=0" *> $null
+            $invalidExitCode = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
+        }
+        if ($invalidExitCode -eq 0) {
+            throw "values.schema.json accepted invalid historyDays for $($chart.Name)."
+        }
+        Write-Host "test: schema rejected invalid values for $($chart.Name)."
+    }
+    Write-Host "test: static chart tests passed (Helm hooks run after installation)."
 }
 
 function Invoke-Package {

@@ -1,0 +1,16 @@
+---
+serviceMonitor:
+  enabled: true
+  labels:
+    monitoring.example.com/environment: test
+  interval: 1m
+  scrapeTimeout: 15s
+  relabelings:
+    - action: replace
+      targetLabel: chart_test
+      replacement: "true"
+  metricRelabelings:
+    - action: keep
+      sourceLabels:
+        - __name__
+      regex: braiins_pool_.+

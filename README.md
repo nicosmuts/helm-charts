@@ -7,14 +7,14 @@ This repository is **OCI-first**. Released charts will be published beneath
 `oci://ghcr.io/nicosmuts/charts`; it does not use a Helm repository
 `index.yaml` or GitHub Pages.
 
-> No charts have been released yet. The entries below are a roadmap, not
-> installable artifacts.
+> No charts have been released yet. Chart source may be available before its
+> first OCI release.
 
 ## Planned charts
 
 | Chart | Status |
 | --- | --- |
-| `braiins-pool-exporter` | Planned |
+| [`braiins-pool-exporter`](charts/braiins-pool-exporter) | Source available; not released |
 | `avalonhome-prometheus-exporter` | Planned |
 | `open-balena` | Planned |
 | `assetto-corsa-server-manager` | Planned |

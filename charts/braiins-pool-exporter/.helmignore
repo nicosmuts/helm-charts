@@ -1,0 +1,10 @@
+.git/
+.github/
+.idea/
+.vscode/
+ci/
+*.tgz
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db

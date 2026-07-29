@@ -1,0 +1,30 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "braiins-pool-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "braiins-pool-exporter.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "braiins-pool-exporter.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    {{- toYaml .Values.networkPolicy.policyTypes | nindent 4 }}
+  ingress:
+    - ports:
+        - port: http
+          protocol: TCP
+      {{- if not .Values.networkPolicy.ingress.allowExternal }}
+      from:
+        {{- toYaml .Values.networkPolicy.ingress.from | nindent 8 }}
+      {{- end }}
+    {{- with .Values.networkPolicy.additionalIngress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if has "Egress" .Values.networkPolicy.policyTypes }}
+  egress:
+    {{- toYaml .Values.networkPolicy.egress | nindent 4 }}
+  {{- end }}
+{{- end }}

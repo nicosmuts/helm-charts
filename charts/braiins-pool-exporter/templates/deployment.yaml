@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "braiins-pool-exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "braiins-pool-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 4 }}
+  selector:
+    matchLabels:
+      {{- include "braiins-pool-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "braiins-pool-exporter.selectorLabels" . | nindent 8 }}
+        {{- with .Values.commonLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "braiins-pool-exporter.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.serviceAccount.automountServiceAccountToken }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      {{- with .Values.runtimeClassName }}
+      runtimeClassName: {{ . | quote }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: exporter
+          image: {{ include "braiins-pool-exporter.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          args:
+            - --web.listen-address=:9108
+            - --web.telemetry-path={{ .Values.config.telemetryPath }}
+            - --log.level={{ .Values.config.logLevel }}
+            - --log.format={{ .Values.config.logFormat }}
+            {{- with .Values.extraArgs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          env:
+            - name: BRAIINS_POOL_COIN
+              value: {{ .Values.config.coin | quote }}
+            - name: BRAIINS_POOL_POLL_INTERVAL
+              value: {{ .Values.config.pollInterval | quote }}
+            - name: BRAIINS_POOL_TIMEOUT
+              value: {{ .Values.config.timeout | quote }}
+            - name: BRAIINS_POOL_WORKER_METRICS_ENABLED
+              value: {{ .Values.config.workerMetricsEnabled | quote }}
+            - name: BRAIINS_POOL_MAX_WORKERS
+              value: {{ .Values.config.maxWorkers | quote }}
+            - name: BRAIINS_POOL_REWARDS_ENABLED
+              value: {{ .Values.config.rewardsEnabled | quote }}
+            - name: BRAIINS_POOL_PAYOUTS_ENABLED
+              value: {{ .Values.config.payoutsEnabled | quote }}
+            - name: BRAIINS_POOL_HISTORY_DAYS
+              value: {{ .Values.config.historyDays | quote }}
+            {{- with .Values.config.apiBaseURL }}
+            - name: BRAIINS_POOL_API_BASE_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.existingSecret.name }}
+            - name: BRAIINS_POOL_TOKEN_FILE
+              value: {{ printf "%s/token" $.Values.existingSecret.mountPath | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.extraEnvFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 9108
+              protocol: TCP
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- omit .Values.readinessProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- omit .Values.startupProbe "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if or .Values.existingSecret.name .Values.extraVolumeMounts }}
+          volumeMounts:
+            {{- with .Values.existingSecret.name }}
+            - name: braiins-pool-token
+              mountPath: {{ $.Values.existingSecret.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+        {{- with .Values.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.existingSecret.name .Values.extraVolumes }}
+      volumes:
+        {{- with .Values.existingSecret.name }}
+        - name: braiins-pool-token
+          secret:
+            secretName: {{ . }}
+            defaultMode: 288
+            items:
+              - key: {{ $.Values.existingSecret.key }}
+                path: token
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

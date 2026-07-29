@@ -1,0 +1,32 @@
+---
+extraArgs:
+  - --log.level=debug
+extraEnv:
+  - name: EXAMPLE_LITERAL
+    value: enabled
+  - name: EXAMPLE_FROM_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: example-secret
+        key: example-key
+extraEnvFrom:
+  - configMapRef:
+      name: example-config
+extraVolumes:
+  - name: extra-data
+    emptyDir: {}
+extraVolumeMounts:
+  - name: extra-data
+    mountPath: /var/run/extra
+extraContainers:
+  - name: sidecar
+    image: busybox:1.37.0
+    command:
+      - /bin/sh
+      - -c
+      - sleep 3600
+initContainers:
+  - name: initialize
+    image: busybox:1.37.0
+    command:
+      - /bin/true

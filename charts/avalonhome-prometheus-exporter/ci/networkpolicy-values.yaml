@@ -1,0 +1,21 @@
+---
+networkPolicy:
+  enabled: true
+  ingress:
+    allowExternal: false
+    from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: monitoring
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+        - port: 4028
+          protocol: TCP

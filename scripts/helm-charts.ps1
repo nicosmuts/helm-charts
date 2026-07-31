@@ -102,8 +102,102 @@ function Invoke-Test {
         }
         Write-Host "test: schema rejected invalid values for $($chart.Name)."
         $global:LASTEXITCODE = 0
+
+        if ($chart.Name -eq "avalonhome-prometheus-exporter") {
+            Invoke-AvalonHomeStaticTests $chart
+        }
     }
     Write-Host "test: static chart tests passed (Helm hooks run after installation)."
+}
+
+function Invoke-HelmTemplate([System.IO.DirectoryInfo]$Chart, [string[]]$Arguments) {
+    $output = & helm template $Chart.Name $Chart.FullName @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "helm template failed for $($Chart.Name) static assertion."
+    }
+    return ($output -join "`n")
+}
+
+function Assert-Contains([string]$Text, [string]$Pattern, [string]$Message) {
+    if ($Text -notmatch $Pattern) {
+        throw $Message
+    }
+}
+
+function Assert-NotContains([string]$Text, [string]$Pattern, [string]$Message) {
+    if ($Text -match $Pattern) {
+        throw $Message
+    }
+}
+
+function Assert-HelmRejects([System.IO.DirectoryInfo]$Chart, [string[]]$Arguments, [string]$Message) {
+    $previousErrorAction = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        & helm template "$($Chart.Name)-invalid" $Chart.FullName @Arguments *> $null
+        $invalidExitCode = $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $previousErrorAction
+    }
+    if ($invalidExitCode -eq 0) {
+        throw $Message
+    }
+    $global:LASTEXITCODE = 0
+}
+
+function Assert-HelmRejectsValues([System.IO.DirectoryInfo]$Chart, [string]$Values, [string]$Message) {
+    $tempFile = New-TemporaryFile
+    try {
+        Set-Content -LiteralPath $tempFile.FullName -Value $Values -NoNewline
+        Assert-HelmRejects $Chart @("--values", $tempFile.FullName) $Message
+    } finally {
+        Remove-Item -LiteralPath $tempFile.FullName -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Invoke-AvalonHomeStaticTests([System.IO.DirectoryInfo]$Chart) {
+    $default = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/default-values.yaml"))
+    Assert-Contains $default 'image: "ghcr\.io/brav0charlie/avalonhome-prometheus-exporter:v0\.3\.2"' "default image tag was not rendered."
+    Assert-Contains $default 'name: AVALON_IP\s+value: "192\.168\.1\.50"' "single-miner AVALON_IP was not rendered."
+    Assert-NotContains $default 'name: AVALON_IPS' "single-miner render unexpectedly set AVALON_IPS."
+    Assert-Contains $default 'name: AVALON_PORT\s+value: "4028"' "miner API port was not rendered."
+    Assert-Contains $default 'name: EXPORTER_PORT\s+value: "9100"' "exporter port was not rendered."
+    Assert-Contains $default 'path: /health\s+port: http' "health probes do not use /health."
+    Assert-NotContains $default '(?m)^kind: (Secret|Role|RoleBinding|ClusterRole|ClusterRoleBinding)$' "chart rendered forbidden Secret or RBAC resources."
+    Assert-Contains $default 'runAsNonRoot: true' "secure non-root defaults were not rendered."
+    Assert-Contains $default 'readOnlyRootFilesystem: true' "read-only root filesystem was not rendered."
+    Assert-Contains $default 'automountServiceAccountToken: false' "ServiceAccount token automount was not disabled."
+
+    $multi = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/multi-miner-values.yaml"))
+    Assert-Contains $multi 'name: AVALON_IPS\s+value: "nano3s-01\.local,mini3-rack1\.lan,192\.168\.1\.99"' "multi-miner AVALON_IPS was not rendered as comma-separated hosts."
+    Assert-NotContains $multi 'name: AVALON_IP\s+value:' "multi-miner render unexpectedly set AVALON_IP."
+
+    $digest = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/digest-values.yaml"))
+    Assert-Contains $digest 'image: "ghcr\.io/brav0charlie/avalonhome-prometheus-exporter@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"' "digest did not take precedence over image tag."
+
+    $monitoring = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/monitoring-values.yaml"))
+    Assert-Contains $monitoring '(?m)^kind: ServiceMonitor$' "ServiceMonitor was not rendered."
+    Assert-Contains $monitoring 'path: /metrics' "ServiceMonitor did not use /metrics."
+    Assert-Contains $monitoring 'port: http' "ServiceMonitor did not target the http port."
+
+    $networkPolicy = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/networkpolicy-values.yaml"))
+    Assert-Contains $networkPolicy '(?m)^kind: NetworkPolicy$' "NetworkPolicy was not rendered."
+    Assert-Contains $networkPolicy 'policyTypes:\s+- Ingress\s+- Egress' "NetworkPolicy did not include requested policy types."
+    Assert-Contains $networkPolicy 'port: 4028' "NetworkPolicy egress fixture did not render miner API port."
+
+    $scheduling = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/scheduling-values.yaml"))
+    Assert-Contains $scheduling '(?m)^kind: PodDisruptionBudget$' "PodDisruptionBudget was not rendered."
+    Assert-Contains $scheduling 'nodeSelector:\s+kubernetes\.io/os: linux' "nodeSelector fixture was not rendered."
+    Assert-Contains $scheduling 'topologySpreadConstraints:' "topology spread constraints were not rendered."
+
+    Assert-HelmRejectsValues $Chart "config:`n  avalonIP: `"`"`n  avalonIPs: []`n" "schema accepted missing miner targets."
+    Assert-HelmRejectsValues $Chart "config:`n  avalonIP: one`n  avalonIPs:`n    - two`n" "schema accepted both AVALON_IP and AVALON_IPS."
+    Assert-HelmRejects $Chart @("--set", "config.updateInterval=0") "schema accepted zero updateInterval."
+    Assert-HelmRejects $Chart @("--set", "config.avalonPort=0") "schema accepted invalid miner port."
+    Assert-HelmRejects $Chart @("--set", "image.tag=latest") "schema accepted latest image tag."
+    Assert-HelmRejects $Chart @("--set", "commonLabels.app\.kubernetes\.io/name=override") "schema accepted reserved selector label."
+
+    Write-Host "test: avalonhome-prometheus-exporter static assertions passed."
 }
 
 function Invoke-Package {

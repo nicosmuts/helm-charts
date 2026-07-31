@@ -1,0 +1,22 @@
+---
+commonLabels:
+  app.kubernetes.io/part-of: mining-observability
+podLabels:
+  observability.nicosmuts.dev/scrape: "true"
+service:
+  labels:
+    service.nicosmuts.dev/tier: metrics
+  annotations:
+    prometheus.io/scrape: "true"
+extraEnv:
+  - name: PYTHONUNBUFFERED
+    value: "1"
+extraEnvFrom:
+  - configMapRef:
+      name: avalonhome-exporter-extra-env
+extraVolumes:
+  - name: tmp
+    emptyDir: {}
+extraVolumeMounts:
+  - name: tmp
+    mountPath: /tmp

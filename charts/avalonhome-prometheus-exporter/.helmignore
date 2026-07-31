@@ -1,0 +1,10 @@
+# Patterns to ignore when building packages.
+.git/
+.gitignore
+.dockerignore
+*.swp
+*.bak
+*.tmp
+*.orig
+*.tgz
+dist/

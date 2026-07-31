@@ -1,0 +1,7 @@
+---
+config:
+  avalonIP: ""
+  avalonIPs:
+    - nano3s-01.local
+    - mini3-rack1.lan
+    - 192.168.1.99

@@ -1,0 +1,11 @@
+---
+serviceMonitor:
+  enabled: true
+  labels:
+    prometheus: platform
+  interval: 15s
+  scrapeTimeout: 5s
+  relabelings:
+    - action: replace
+      targetLabel: job
+      replacement: avalonhome-prometheus-exporter

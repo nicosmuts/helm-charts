@@ -1,0 +1,22 @@
+1. Check the exporter health endpoint:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward \
+    service/{{ include "avalonhome-prometheus-exporter.fullname" . }} 9100:{{ .Values.service.port }}
+
+  curl http://127.0.0.1:9100/health
+
+2. Scrape metrics:
+
+  curl http://127.0.0.1:9100/metrics
+
+3. Run the Helm connection test:
+
+  helm test {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+
+{{- if .Values.config.avalonIPs }}
+
+The exporter is configured for multiple miners through AVALON_IPS.
+{{- else }}
+
+The exporter is configured for one miner through AVALON_IP.
+{{- end }}

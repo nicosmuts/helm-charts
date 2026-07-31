@@ -15,7 +15,7 @@ This repository is **OCI-first**. Released charts will be published beneath
 | Chart | Status |
 | --- | --- |
 | [`braiins-pool-exporter`](charts/braiins-pool-exporter) | Source available; not released |
-| `avalonhome-prometheus-exporter` | Planned |
+| [`avalonhome-prometheus-exporter`](charts/avalonhome-prometheus-exporter) | Source available; not released |
 | `open-balena` | Planned |
 | `assetto-corsa-server-manager` | Planned |
 

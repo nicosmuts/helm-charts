@@ -24,7 +24,7 @@ does not create Secrets, Roles, RoleBindings, ClusterRoles, or ClusterRoleBindin
 ```console
 helm install avalonhome-prometheus-exporter \
   ./charts/avalonhome-prometheus-exporter \
-  --namespace monitoring \
+  --namespace mining \
   --create-namespace
 ```
 
@@ -35,7 +35,7 @@ the OCI installation command will be:
 helm install avalonhome-prometheus-exporter \
   oci://ghcr.io/nicosmuts/charts/avalonhome-prometheus-exporter \
   --version 0.1.0 \
-  --namespace monitoring \
+  --namespace mining \
   --create-namespace
 ```
 
@@ -142,7 +142,7 @@ version:
 helm upgrade avalonhome-prometheus-exporter \
   oci://ghcr.io/nicosmuts/charts/avalonhome-prometheus-exporter \
   --version <new-chart-version> \
-  --namespace monitoring \
+  --namespace mining \
   --reuse-values
 ```
 
@@ -150,7 +150,7 @@ Prefer a checked values file over `--reuse-values` when defaults or schemas
 change. To uninstall:
 
 ```console
-helm uninstall avalonhome-prometheus-exporter --namespace monitoring
+helm uninstall avalonhome-prometheus-exporter --namespace mining
 ```
 
 ## Security

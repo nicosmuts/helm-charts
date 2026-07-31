@@ -23,7 +23,7 @@ token is required for authenticated Braiins Pool API polling.
 ```console
 helm install braiins-pool-exporter \
   ./charts/braiins-pool-exporter \
-  --namespace monitoring \
+  --namespace mining \
   --create-namespace
 ```
 
@@ -34,7 +34,7 @@ the OCI installation command will be:
 helm install braiins-pool-exporter \
   oci://ghcr.io/nicosmuts/charts/braiins-pool-exporter \
   --version 0.1.0 \
-  --namespace monitoring \
+  --namespace mining \
   --create-namespace
 ```
 
@@ -45,7 +45,7 @@ read the token from a mounted file, which is the upstream-recommended
 production model:
 
 ```console
-kubectl --namespace monitoring create secret generic braiins-pool-api-token \
+kubectl --namespace mining create secret generic braiins-pool-api-token \
   --from-file=token=/secure/path/to/braiins-pool-token
 ```
 
@@ -143,7 +143,7 @@ version:
 helm upgrade braiins-pool-exporter \
   oci://ghcr.io/nicosmuts/charts/braiins-pool-exporter \
   --version <new-chart-version> \
-  --namespace monitoring \
+  --namespace mining \
   --reuse-values
 ```
 
@@ -151,7 +151,7 @@ Prefer a checked values file over `--reuse-values` when defaults or schemas
 change. To uninstall:
 
 ```console
-helm uninstall braiins-pool-exporter --namespace monitoring
+helm uninstall braiins-pool-exporter --namespace mining
 ```
 
 The external Secret is not deleted by Helm.

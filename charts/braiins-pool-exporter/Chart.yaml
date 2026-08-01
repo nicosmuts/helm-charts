@@ -3,8 +3,8 @@ apiVersion: v2
 name: braiins-pool-exporter
 description: Prometheus exporter for Braiins Pool mining statistics
 type: application
-version: 0.1.0
-appVersion: "0.0.1"
+version: 0.1.1
+appVersion: "0.0.2"
 kubeVersion: ">=1.25.0-0"
 home: https://github.com/nicosmuts/braiins-pool-exporter
 icon: https://raw.githubusercontent.com/nicosmuts/braiins-pool-exporter/main/assets/banner-image.png

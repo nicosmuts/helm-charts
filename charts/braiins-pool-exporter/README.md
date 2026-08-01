@@ -5,7 +5,7 @@ This chart deploys
 an independent Prometheus exporter for Braiins Pool account, worker, reward,
 and payout metrics.
 
-The upstream `0.0.1` release is an initial public development release. Its
+The upstream `0.0.2` release is an initial public development release. Its
 configuration and metric interfaces may change before `0.1.0`.
 
 ## Prerequisites
@@ -27,13 +27,13 @@ helm install braiins-pool-exporter \
   --create-namespace
 ```
 
-No chart release has been published yet. After version `0.1.0` is published,
+No chart release has been published yet. After version `0.1.1` is published,
 the OCI installation command will be:
 
 ```console
 helm install braiins-pool-exporter \
   oci://ghcr.io/nicosmuts/charts/braiins-pool-exporter \
-  --version 0.1.0 \
+  --version 0.1.1 \
   --namespace mining \
   --create-namespace
 ```
@@ -85,10 +85,10 @@ A digest takes precedence over the tag:
 
 ```yaml
 image:
-  digest: sha256:bf72417b08d84e0ae78f331ad57784ef8978f2f63906240153a2795a2dfd8cc3
+  digest: sha256:05719669d0b6c72a97796c0a42493597c7c58ea230e7ecd5c8c2621c7f63c3ba
 ```
 
-That digest identifies the released `0.0.1` multi-architecture OCI index for
+That digest identifies the released `0.0.2` multi-architecture OCI index for
 `linux/amd64` and `linux/arm64`.
 
 ## Application configuration
@@ -182,7 +182,7 @@ change independently.
 | --- | --- | --- | --- |
 | `replicaCount` | integer | `1` | Deployment replicas |
 | `image.repository` | string | `ghcr.io/nicosmuts/braiins-pool-exporter` | Exporter image repository |
-| `image.tag` | string | `0.0.1` | Immutable release tag used when no digest is set |
+| `image.tag` | string | `0.0.2` | Immutable release tag used when no digest is set |
 | `image.digest` | string | `""` | Optional `sha256` image digest; overrides the tag |
 | `image.pullPolicy` | string | `IfNotPresent` | Image pull policy |
 | `imagePullSecrets` | list | `[]` | Pod image pull Secret references |

@@ -3,8 +3,8 @@ apiVersion: v2
 name: avalonhome-prometheus-exporter
 description: Prometheus exporter for Avalon Home-series ASIC miners
 type: application
-version: 0.1.0
-appVersion: "0.3.2"
+version: 0.1.1
+appVersion: "0.4.0"
 kubeVersion: ">=1.25.0-0"
 home: https://github.com/brav0charlie/avalonhome-prometheus-exporter
 sources:

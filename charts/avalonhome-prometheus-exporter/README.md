@@ -5,9 +5,9 @@ This chart deploys
 a lightweight Prometheus exporter for Avalon Home-series ASIC miners such as
 Avalon Nano 3S and Avalon Mini 3.
 
-The chart packages upstream app version `0.3.2` and defaults to the same image
+The chart packages upstream app version `0.4.0` and defaults to the same image
 tag used by upstream Docker Compose:
-`ghcr.io/brav0charlie/avalonhome-prometheus-exporter:v0.3.2`.
+`ghcr.io/brav0charlie/avalonhome-prometheus-exporter:v0.4.0`.
 
 ## Prerequisites
 
@@ -28,13 +28,13 @@ helm install avalonhome-prometheus-exporter \
   --create-namespace
 ```
 
-No chart release has been published yet. After version `0.1.0` is published,
+No chart release has been published yet. After version `0.1.1` is published,
 the OCI installation command will be:
 
 ```console
 helm install avalonhome-prometheus-exporter \
   oci://ghcr.io/nicosmuts/charts/avalonhome-prometheus-exporter \
-  --version 0.1.0 \
+  --version 0.1.1 \
   --namespace mining \
   --create-namespace
 ```
@@ -179,7 +179,7 @@ change independently.
 | --- | --- | --- | --- |
 | `replicaCount` | integer | `1` | Deployment replicas |
 | `image.repository` | string | `ghcr.io/brav0charlie/avalonhome-prometheus-exporter` | Exporter image repository |
-| `image.tag` | string | `v0.3.2` | Immutable release tag used when no digest is set |
+| `image.tag` | string | `v0.4.0` | Immutable release tag used when no digest is set |
 | `image.digest` | string | `""` | Optional `sha256` image digest; overrides the tag |
 | `image.pullPolicy` | string | `IfNotPresent` | Image pull policy |
 | `imagePullSecrets` | list | `[]` | Pod image pull Secret references |

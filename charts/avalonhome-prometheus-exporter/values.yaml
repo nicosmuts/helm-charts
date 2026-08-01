@@ -3,7 +3,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/brav0charlie/avalonhome-prometheus-exporter
-  tag: "v0.3.2"
+  tag: "v0.4.0"
   digest: ""
   pullPolicy: IfNotPresent
 

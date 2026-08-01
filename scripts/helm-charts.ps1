@@ -157,7 +157,7 @@ function Assert-HelmRejectsValues([System.IO.DirectoryInfo]$Chart, [string]$Valu
 
 function Invoke-AvalonHomeStaticTests([System.IO.DirectoryInfo]$Chart) {
     $default = Invoke-HelmTemplate $Chart @("--values", (Join-Path $Chart.FullName "ci/default-values.yaml"))
-    Assert-Contains $default 'image: "ghcr\.io/brav0charlie/avalonhome-prometheus-exporter:v0\.3\.2"' "default image tag was not rendered."
+    Assert-Contains $default 'image: "ghcr\.io/brav0charlie/avalonhome-prometheus-exporter:v0\.4\.0"' "default image tag was not rendered."
     Assert-Contains $default 'name: AVALON_IP\s+value: "192\.168\.1\.50"' "single-miner AVALON_IP was not rendered."
     Assert-NotContains $default 'name: AVALON_IPS' "single-miner render unexpectedly set AVALON_IPS."
     Assert-Contains $default 'name: AVALON_PORT\s+value: "4028"' "miner API port was not rendered."
